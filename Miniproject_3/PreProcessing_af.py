@@ -12,6 +12,7 @@ from HMM_helper import (
     animate_emission,
     obs_map_reverser)
 def parse_observations_af(text):
+    '''This edit of parse_observations'''
     # Convert text to dataset.
     lines = [line.split() for line in text.split('\n') if line.split()]
     # test comment
@@ -42,8 +43,35 @@ def parse_observations_af(text):
 
     return obs, obs_map
 
-# Data Preprocessing
-text = open(os.path.join(os.getcwd(), 'data/shakespeare.txt')).read()
-obs, obs_map = parse_observations_af(text)
-print(obs[0])
-print(obs_map)
+def sonnet_parser_af(text):
+    '''Separates sonnets into mapped observation words.  Note, use edited shakespear by Alex which deletes the sonnet with
+    too few lines, and the other with too many lines.  All should have 14 now'''
+    lines = [line.split() for line in text.split('\n') if line.split()]
+    obs = []
+    obs_map = {}
+    obs_counter = 0
+    i_start =0
+    i_stop = 15
+    while i_stop < len(lines)+14:
+        obs_elem = []
+        for line in lines[i_start+1: i_stop]:
+            for word in line:
+                word = re.sub(r'[^\w]', '', word).lower()
+                if word not in obs_map:
+                    # Add unique words to the observations map.
+                    obs_map[word] = obs_counter
+                    obs_counter += 1
+                obs_elem.append(obs_map[word])
+        obs.append(obs_elem)
+        i_start += 15
+        i_stop += 15
+    return obs, obs_map
+# 
+# text = open(os.path.join(os.getcwd(), 'data/shakespeare_af.txt')).read()
+# obs, obs_map = sonnet_parser_af(text)
+# print(obs[-1])
+# sonnet = []
+# reverser = obs_map_reverser(obs_map)
+# for token in obs[-1]:
+#     sonnet.append(' ' + reverser[token])
+# print(" ".join(sonnet))
